@@ -1,0 +1,20 @@
+# GCP Configuration
+project_id = "viktor-integration"
+region     = "us-central1"
+zone       = "us-central1-a"
+
+# Instance Configuration
+instance_name = "virtual-desktop-server"
+machine_type  = "e2-highmem-8"  # 8 vCPU, 64GB RAM
+disk_size_gb  = 500
+
+# User Configuration
+username = "vik9541"
+ssh_public_key = "ssh-rsa AAAAB3NzaC1yc2E... your-key-here"  # Replace with your SSH public key
+
+# Monitoring
+alert_email = "your-email@example.com"  # Replace with your email
+
+# Storage
+enable_persistent_disk    = true
+persistent_disk_size_gb   = 1000  # 1TB for workspaces

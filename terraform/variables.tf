@@ -1,5 +1,3 @@
-# Variables for Terraform configuration
-
 variable "project_id" {
   description = "GCP Project ID"
   type        = string
@@ -7,27 +5,21 @@ variable "project_id" {
 }
 
 variable "region" {
-  description = "GCP region"
+  description = "GCP Region"
   type        = string
   default     = "us-central1"
 }
 
 variable "zone" {
-  description = "GCP zone"
+  description = "GCP Zone"
   type        = string
-  default     = "us-central1-c"
-}
-
-variable "instance_name" {
-  description = "Name of the compute instance"
-  type        = string
-  default     = "virtual-desktop-server"
+  default     = "us-central1-a"
 }
 
 variable "machine_type" {
-  description = "Machine type for the instance"
+  description = "GCP Machine Type"
   type        = string
-  default     = "e2-highmem-8"
+  default     = "e2-highmem-8"  # 8 vCPU, 64GB RAM
 }
 
 variable "disk_size_gb" {
@@ -36,26 +28,36 @@ variable "disk_size_gb" {
   default     = 500
 }
 
-variable "use_static_ip" {
-  description = "Whether to use a static external IP"
-  type        = bool
-  default     = false
-}
-
-variable "service_account_email" {
-  description = "Service account email for the instance"
+variable "instance_name" {
+  description = "Instance name"
   type        = string
-  default     = "763289222664-compute@developer.gserviceaccount.com"
+  default     = "virtual-desktop-server"
 }
 
-variable "allowed_ssh_ips" {
-  description = "IP ranges allowed to SSH (CIDR notation)"
-  type        = list(string)
-  default     = ["0.0.0.0/0"]  # Warning: Allow from anywhere. Restrict in production!
+variable "username" {
+  description = "Primary username for the server"
+  type        = string
+  default     = "vik9541"
 }
 
-variable "allowed_https_ips" {
-  description = "IP ranges allowed to access HTTPS (CIDR notation)"
-  type        = list(string)
-  default     = ["0.0.0.0/0"]  # Warning: Allow from anywhere. Restrict in production!
+variable "ssh_public_key" {
+  description = "SSH public key for authentication"
+  type        = string
+}
+
+variable "alert_email" {
+  description = "Email for monitoring alerts"
+  type        = string
+}
+
+variable "enable_persistent_disk" {
+  description = "Enable additional persistent disk for /data/shared"
+  type        = bool
+  default     = true
+}
+
+variable "persistent_disk_size_gb" {
+  description = "Persistent disk size in GB"
+  type        = number
+  default     = 1000
 }

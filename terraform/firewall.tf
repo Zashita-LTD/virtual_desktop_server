@@ -1,59 +1,62 @@
-# Firewall Rules for Virtual Desktop Server
-
-# Allow SSH
+# SSH access
 resource "google_compute_firewall" "allow_ssh" {
-  name    = "allow-ssh-virtual-desktop"
+  name    = "${var.instance_name}-allow-ssh"
   network = "default"
-
+  
   allow {
     protocol = "tcp"
     ports    = ["22"]
   }
-
-  source_ranges = var.allowed_ssh_ips
-  target_tags   = ["code-server", "development"]
-
-  description = "Allow SSH access to virtual desktop server"
+  
+  source_ranges = ["0.0.0.0/0"]  # Рекомендуется ограничить вашим IP
+  target_tags   = ["code-server", "virtual-desktop"]
+  
+  description = "Allow SSH access"
 }
 
-# Allow HTTPS (for potential Nginx reverse proxy)
-resource "google_compute_firewall" "allow_https" {
-  name    = "allow-https-virtual-desktop"
-  network = "default"
-
-  allow {
-    protocol = "tcp"
-    ports    = ["443"]
-  }
-
-  source_ranges = var.allowed_https_ips
-  target_tags   = ["code-server", "development"]
-
-  description = "Allow HTTPS access to virtual desktop server"
-}
-
-# Allow code-server (port 8443)
+# HTTPS for code-server
 resource "google_compute_firewall" "allow_code_server" {
-  name    = "allow-code-server"
+  name    = "${var.instance_name}-allow-code-server"
   network = "default"
-
+  
   allow {
     protocol = "tcp"
     ports    = ["8443"]
   }
-
-  source_ranges = var.allowed_https_ips
-  target_tags   = ["code-server", "development"]
-
-  description = "Allow access to code-server on port 8443"
+  
+  source_ranges = ["0.0.0.0/0"]
+  target_tags   = ["code-server", "virtual-desktop"]
+  
+  description = "Allow code-server HTTPS access"
 }
 
-# Output firewall rules
-output "firewall_rules" {
-  value = {
-    ssh         = google_compute_firewall.allow_ssh.name
-    https       = google_compute_firewall.allow_https.name
-    code_server = google_compute_firewall.allow_code_server.name
+# HTTPS (443) if using Nginx reverse proxy
+resource "google_compute_firewall" "allow_https" {
+  name    = "${var.instance_name}-allow-https"
+  network = "default"
+  
+  allow {
+    protocol = "tcp"
+    ports    = ["443"]
   }
-  description = "Created firewall rules"
+  
+  source_ranges = ["0.0.0.0/0"]
+  target_tags   = ["https-server", "code-server"]
+  
+  description = "Allow HTTPS access"
+}
+
+# ICMP for ping
+resource "google_compute_firewall" "allow_icmp" {
+  name    = "${var.instance_name}-allow-icmp"
+  network = "default"
+  
+  allow {
+    protocol = "icmp"
+  }
+  
+  source_ranges = ["0.0.0.0/0"]
+  target_tags   = ["code-server", "virtual-desktop"]
+  
+  description = "Allow ICMP (ping)"
 }

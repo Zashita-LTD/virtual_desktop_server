@@ -1,9 +1,5 @@
-# Virtual Desktop Server - Terraform Configuration
-# GCP infrastructure for development environment
-
 terraform {
   required_version = ">= 1.0"
-  
   required_providers {
     google = {
       source  = "hashicorp/google"
@@ -15,16 +11,71 @@ terraform {
 provider "google" {
   project = var.project_id
   region  = var.region
+  zone    = var.zone
 }
 
-# Compute Instance
+# Static External IP
+resource "google_compute_address" "static_ip" {
+  name   = "${var.instance_name}-ip"
+  region = var.region
+}
+
+# Service Account for the instance
+resource "google_service_account" "instance_sa" {
+  account_id   = "${var.instance_name}-sa"
+  display_name = "Virtual Desktop Server Service Account"
+  description  = "Service account for virtual desktop server with AI access"
+}
+
+# IAM roles for Service Account
+resource "google_project_iam_member" "instance_sa_roles" {
+  for_each = toset([
+    "roles/aiplatform.user",           # Vertex AI
+    "roles/logging.logWriter",          # Cloud Logging
+    "roles/monitoring.metricWriter",    # Cloud Monitoring
+    "roles/storage.objectAdmin",        # Cloud Storage for backups
+  ])
+  
+  project = var.project_id
+  role    = each.value
+  member  = "serviceAccount:${google_service_account.instance_sa.email}"
+}
+
+# Optional: Persistent disk for /data/shared
+resource "google_compute_disk" "data_disk" {
+  count = var.enable_persistent_disk ? 1 : 0
+  
+  name  = "${var.instance_name}-data-disk"
+  type  = "pd-ssd"
+  zone  = var.zone
+  size  = var.persistent_disk_size_gb
+  
+  labels = {
+    environment = "production"
+    purpose     = "workspace-storage"
+  }
+}
+
+# Startup script that installs everything
+data "template_file" "startup_script" {
+  template = file("${path.module}/startup-script.sh")
+  
+  vars = {
+    username    = var.username
+    alert_email = var.alert_email
+    project_id  = var.project_id
+    region      = var.region
+  }
+}
+
+# Main compute instance
 resource "google_compute_instance" "virtual_desktop" {
   name         = var.instance_name
   machine_type = var.machine_type
   zone         = var.zone
-
-  tags = ["code-server", "development"]
-
+  
+  tags = ["code-server", "virtual-desktop", "https-server"]
+  
   boot_disk {
     initialize_params {
       image = "ubuntu-os-cloud/ubuntu-2404-lts-amd64"
@@ -32,63 +83,52 @@ resource "google_compute_instance" "virtual_desktop" {
       type  = "pd-ssd"
     }
   }
-
-  network_interface {
-    network = "default"
-
-    access_config {
-      # Ephemeral public IP (or specify nat_ip for static IP)
+  
+  # Attach persistent disk if enabled
+  dynamic "attached_disk" {
+    for_each = var.enable_persistent_disk ? [1] : []
+    content {
+      source      = google_compute_disk.data_disk[0].id
+      device_name = "data-disk"
     }
   }
-
-  metadata = {
-    enable-oslogin = "TRUE"
-  }
-
-  service_account {
-    email  = var.service_account_email
-    scopes = ["cloud-platform"]
-  }
-
-  metadata_startup_script = file("${path.module}/startup-script.sh")
-
-  labels = {
-    environment = "development"
-    managed-by  = "terraform"
-    owner       = "vik9541"
-  }
-}
-
-# Static IP (optional)
-resource "google_compute_address" "static_ip" {
-  count = var.use_static_ip ? 1 : 0
   
-  name   = "${var.instance_name}-ip"
-  region = var.region
-}
-
-# Output values
-output "instance_name" {
-  value       = google_compute_instance.virtual_desktop.name
-  description = "Name of the compute instance"
-}
-
-output "instance_ip" {
-  value       = google_compute_instance.virtual_desktop.network_interface[0].access_config[0].nat_ip
-  description = "External IP address of the instance"
-}
-
-output "instance_zone" {
-  value       = google_compute_instance.virtual_desktop.zone
-  description = "Zone of the instance"
-}
-
-output "ssh_command" {
-  value       = "gcloud compute ssh ${google_compute_instance.virtual_desktop.name} --zone=${var.zone}"
-  description = "Command to SSH into the instance"
-}
-
-output "code_server_url" {
-  value       = "https://${google_compute_instance.virtual_desktop.network_interface[0].access_config[0].nat_ip}:8443"
-  description = "URL to access code-server"
+  network_interface {
+    network = "default"
+    access_config {
+      nat_ip = google_compute_address.static_ip.address
+    }
+  }
+  
+  metadata = {
+    ssh-keys = "${var.username}:${var.ssh_public_key}"
+    startup-script = data.template_file.startup_script.rendered
+  }
+  
+  metadata_startup_script = data.template_file.startup_script.rendered
+  
+  service_account {
+    email  = google_service_account.instance_sa.email
+    scopes = [
+      "https://www.googleapis.com/auth/cloud-platform",
+      "https://www.googleapis.com/auth/logging.write",
+      "https://www.googleapis.com/auth/monitoring.write",
+    ]
+  }
+  
+  labels = {
+    environment = "production"
+    type        = "virtual-desktop"
+    managed-by  = "terraform"
+  }
+  
+  # Allow stopping for updates
+  allow_stopping_for_update = true
+  
+  # Lifecycle
+  lifecycle {
+    ignore_changes = [
+      metadata_startup_script,
+    ]
+  }
 }

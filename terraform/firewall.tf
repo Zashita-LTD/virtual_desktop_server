@@ -8,7 +8,7 @@ resource "google_compute_firewall" "allow_ssh" {
     ports    = ["22"]
   }
   
-  source_ranges = ["0.0.0.0/0"]  # Рекомендуется ограничить вашим IP
+  source_ranges = ["0.0.0.0/0"]  # Recommended to restrict to your IP
   target_tags   = ["code-server", "virtual-desktop"]
   
   description = "Allow SSH access"

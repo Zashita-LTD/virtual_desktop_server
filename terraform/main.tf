@@ -57,15 +57,13 @@ resource "google_compute_disk" "data_disk" {
 }
 
 # Startup script that installs everything
-data "template_file" "startup_script" {
-  template = file("${path.module}/startup-script.sh")
-  
-  vars = {
+locals {
+  startup_script = templatefile("${path.module}/startup-script.sh", {
     username    = var.username
     alert_email = var.alert_email
     project_id  = var.project_id
     region      = var.region
-  }
+  })
 }
 
 # Main compute instance
@@ -102,10 +100,9 @@ resource "google_compute_instance" "virtual_desktop" {
   
   metadata = {
     ssh-keys = "${var.username}:${var.ssh_public_key}"
-    startup-script = data.template_file.startup_script.rendered
   }
   
-  metadata_startup_script = data.template_file.startup_script.rendered
+  metadata_startup_script = local.startup_script
   
   service_account {
     email  = google_service_account.instance_sa.email

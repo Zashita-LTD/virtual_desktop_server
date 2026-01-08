@@ -89,5 +89,9 @@ fi
 echo "[$(date)] ========================================="
 echo "[$(date)] Virtual Desktop Server Setup Complete!"
 echo "[$(date)] ========================================="
-echo "[$(date)] Access code-server at: https://$(curl -s http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/access-configs/0/external-ip -H "Metadata-Flavor: Google"):8443"
+
+# Get external IP for display
+EXTERNAL_IP=$(curl -s http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/access-configs/0/external-ip -H "Metadata-Flavor: Google")
+
+echo "[$(date)] Access code-server at: https://${EXTERNAL_IP}:8443"
 echo "[$(date)] Get password with: cat /home/$USERNAME/.config/code-server/config.yaml"

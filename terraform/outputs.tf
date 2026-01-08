@@ -53,7 +53,7 @@ output "next_steps" {
      URL: https://${google_compute_address.static_ip.address}:8443
      
   🔑 Get code-server password:
-     ${format("gcloud compute ssh %s --zone=%s --project=%s --command='cat ~/.config/code-server/config.yaml'", var.instance_name, var.zone, var.project_id)}
+     ${format("gcloud compute ssh %s --zone=%s --project=%s --command='cat /home/%s/.config/code-server/config.yaml'", var.instance_name, var.zone, var.project_id, var.username)}
   
   📊 Check installation progress:
      ${format("gcloud compute ssh %s --zone=%s --project=%s --command='tail -f /var/log/startup-script.log'", var.instance_name, var.zone, var.project_id)}

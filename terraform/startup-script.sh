@@ -114,4 +114,3 @@ echo "[$(date)] Virtual Desktop Server Setup Complete!"
 echo "[$(date)] ========================================="
 echo "[$(date)] Access code-server at: https://${EXTERNAL_IP}:8443"
 echo "[$(date)] Get password with: cat /home/$USERNAME/.config/code-server/config.yaml"
-

@@ -1,0 +1,214 @@
+# Git ignore file
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*~
+
+# Editor directories and files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.swn
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# Dependency directories
+node_modules/
+jspm_packages/
+bower_components/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+*.manifest
+*.spec
+pip-log.txt
+pip-delete-this-directory.txt
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+.hypothesis/
+.pytype/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+
+# Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+go.work
+
+# Rust
+target/
+Cargo.lock
+
+# Build artifacts
+dist/
+build/
+out/
+.next/
+.nuxt/
+.cache/
+.parcel-cache/
+.output/
+.vuepress/dist
+.serverless/
+.fusebox/
+.dynamodb/
+.tern-port
+.docusaurus/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+.terragrunt-cache/
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraform.lock.hcl
+
+# Docker
+.dockerignore
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# Backup files
+backup/
+*.bak
+*.backup
+*.tar
+*.tar.gz
+*.zip
+
+# Certificates
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# Secrets and credentials
+*secret*
+*credentials*
+*service-account*.json
+*.env.production
+
+# Database
+*.sqlite
+*.sqlite3
+*.db
+
+# IDE specific
+.vscode-test/
+.history/
+
+# macOS
+.AppleDouble
+.LSOverride
+Icon
+._*
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Package manager
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Cloud
+.gcloud/
+.aws/
+.azure/
+
+# Monitoring
+*.log.*

@@ -1,0 +1,54 @@
+{
+  "folders": [
+    {
+      "name": "Infrastructure Projects",
+      "path": "/data/shared/projects/workspace4-infrastructure"
+    }
+  ],
+  "settings": {
+    "editor.formatOnSave": true,
+    "editor.tabSize": 2,
+    "files.exclude": {
+      "**/.git": true,
+      "**/.terraform": true,
+      "**/.terragrunt-cache": true,
+      "**/terraform.tfstate*": true
+    },
+    "search.exclude": {
+      "**/.terraform": true,
+      "**/.terragrunt-cache": true
+    },
+    "[terraform]": {
+      "editor.defaultFormatter": "hashicorp.terraform",
+      "editor.formatOnSave": true
+    },
+    "[yaml]": {
+      "editor.defaultFormatter": "redhat.vscode-yaml",
+      "editor.tabSize": 2
+    },
+    "[json]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "terraform.languageServer": {
+      "enabled": true,
+      "args": []
+    },
+    "yaml.schemas": {
+      "kubernetes": "*.yaml"
+    }
+  },
+  "extensions": {
+    "recommendations": [
+      "hashicorp.terraform",
+      "ms-kubernetes-tools.vscode-kubernetes-tools",
+      "ms-azuretools.vscode-docker",
+      "redhat.vscode-yaml",
+      "redhat.ansible",
+      "github.vscode-github-actions",
+      "timonwong.shellcheck",
+      "foxundermoon.shell-format",
+      "eamodio.gitlens",
+      "github.copilot"
+    ]
+  }
+}

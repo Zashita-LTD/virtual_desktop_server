@@ -1,0 +1,20 @@
+# systemd timer for automatic backups
+# Copy to /etc/systemd/system/backup.timer
+
+[Unit]
+Description=Daily backup timer for projects
+Requires=backup.service
+
+[Timer]
+# Run daily at 2:00 AM
+OnCalendar=daily
+OnCalendar=02:00
+
+# Run immediately if missed (e.g., system was off)
+Persistent=true
+
+# Randomize start time by up to 30 minutes to avoid load spikes
+RandomizedDelaySec=30m
+
+[Install]
+WantedBy=timers.target

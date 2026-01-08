@@ -15,6 +15,11 @@ ALERT_EMAIL="${alert_email}"
 PROJECT_ID="${project_id}"
 REGION="${region}"
 
+# Get instance metadata once
+echo "[$(date)] Retrieving instance metadata..."
+EXTERNAL_IP=$(curl -s http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/access-configs/0/external-ip -H "Metadata-Flavor: Google")
+GCP_ZONE=$(curl -s http://metadata.google.internal/computeMetadata/v1/instance/zone -H "Metadata-Flavor: Google" | cut -d'/' -f4)
+
 # Update system
 echo "[$(date)] Updating system packages..."
 export DEBIAN_FRONTEND=noninteractive
@@ -37,22 +42,28 @@ cd "$REPO_DIR"
 # Create .env file
 echo "[$(date)] Creating .env file..."
 cat > "$REPO_DIR/.env" <<EOF
-SERVER_IP=$(curl -s http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/access-configs/0/external-ip -H "Metadata-Flavor: Google")
+SERVER_IP=$EXTERNAL_IP
 DOMAIN=
 CODE_SERVER_PASSWORD=
 GCP_PROJECT_ID=$PROJECT_ID
 GCP_REGION=$REGION
-GCP_ZONE=$(curl -s http://metadata.google.internal/computeMetadata/v1/instance/zone -H "Metadata-Flavor: Google" | cut -d'/' -f4)
+GCP_ZONE=$GCP_ZONE
 BACKUP_DIR=/backup
 BACKUP_RETENTION_DAYS=7
 ALERT_EMAIL=$ALERT_EMAIL
 EOF
 
-# Make scripts executable
+# Make scripts executable if they exist
 echo "[$(date)] Making scripts executable..."
-chmod +x scripts/install/*.sh
-chmod +x scripts/management/*.sh
-chmod +x scripts/workspaces/*.sh
+if [ -d "$REPO_DIR/scripts/install" ]; then
+  chmod +x scripts/install/*.sh 2>/dev/null || echo "[$(date)] Warning: No install scripts found"
+fi
+if [ -d "$REPO_DIR/scripts/management" ]; then
+  chmod +x scripts/management/*.sh 2>/dev/null || echo "[$(date)] Warning: No management scripts found"
+fi
+if [ -d "$REPO_DIR/scripts/workspaces" ]; then
+  chmod +x scripts/workspaces/*.sh 2>/dev/null || echo "[$(date)] Warning: No workspace scripts found"
+fi
 
 # Mount persistent disk if exists
 if [ -e /dev/disk/by-id/google-data-disk ]; then
@@ -73,25 +84,34 @@ if [ -e /dev/disk/by-id/google-data-disk ]; then
   mount -a
 fi
 
-# Run installation scripts
-echo "[$(date)] Running installation scripts..."
-./scripts/install/00-master-install.sh
+# Run installation scripts if they exist
+if [ -f "$REPO_DIR/scripts/install/00-master-install.sh" ]; then
+  echo "[$(date)] Running installation scripts..."
+  ./scripts/install/00-master-install.sh
+else
+  echo "[$(date)] Warning: Master installation script not found. Skipping automated installation."
+  echo "[$(date)] You may need to run installation scripts manually."
+fi
 
 # Setup for specific user
 echo "[$(date)] Setting up for user $USERNAME..."
 if id "$USERNAME" &>/dev/null; then
-  # Copy workspace configs to user home
-  mkdir -p /home/$USERNAME/.config
-  cp -r "$REPO_DIR/config/workspaces" /home/$USERNAME/.config/
-  chown -R $USERNAME:$USERNAME /home/$USERNAME/.config
+  # Copy workspace configs to user home if they exist
+  if [ -d "$REPO_DIR/config/workspaces" ]; then
+    mkdir -p /home/$USERNAME/.config
+    cp -r "$REPO_DIR/config/workspaces" /home/$USERNAME/.config/
+    chown -R $USERNAME:$USERNAME /home/$USERNAME/.config
+    echo "[$(date)] Workspace configurations copied successfully"
+  else
+    echo "[$(date)] Warning: Workspace configurations not found in repository"
+  fi
+else
+  echo "[$(date)] Warning: User $USERNAME does not exist. Skipping user-specific setup."
 fi
 
 echo "[$(date)] ========================================="
 echo "[$(date)] Virtual Desktop Server Setup Complete!"
 echo "[$(date)] ========================================="
-
-# Get external IP for display
-EXTERNAL_IP=$(curl -s http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/access-configs/0/external-ip -H "Metadata-Flavor: Google")
-
 echo "[$(date)] Access code-server at: https://${EXTERNAL_IP}:8443"
 echo "[$(date)] Get password with: cat /home/$USERNAME/.config/code-server/config.yaml"
+

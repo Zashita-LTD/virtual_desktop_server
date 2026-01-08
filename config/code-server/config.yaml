@@ -1,0 +1,20 @@
+# Example code-server configuration
+# Copy this to ~/.config/code-server/config.yaml and customize
+
+bind-addr: 0.0.0.0:8443
+auth: password
+password: YOUR_PASSWORD_HERE
+cert: true
+
+# Optional: Use Let's Encrypt certificates
+# cert: /etc/letsencrypt/live/yourdomain.com/fullchain.pem
+# cert-key: /etc/letsencrypt/live/yourdomain.com/privkey.pem
+
+# Optional: Disable telemetry
+# disable-telemetry: true
+
+# Optional: Custom extensions directory
+# extensions-dir: ~/.local/share/code-server/extensions
+
+# Optional: User data directory
+# user-data-dir: ~/.local/share/code-server

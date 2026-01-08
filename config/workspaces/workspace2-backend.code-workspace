@@ -1,0 +1,62 @@
+{
+  "folders": [
+    {
+      "name": "Backend Projects",
+      "path": "/data/shared/projects/workspace2-backend"
+    }
+  ],
+  "settings": {
+    "editor.formatOnSave": true,
+    "editor.tabSize": 4,
+    "files.exclude": {
+      "**/__pycache__": true,
+      "**/.git": true,
+      "**/.venv": true,
+      "**/venv": true,
+      "**/node_modules": true,
+      "**/*.pyc": true
+    },
+    "search.exclude": {
+      "**/__pycache__": true,
+      "**/.venv": true,
+      "**/venv": true,
+      "**/node_modules": true
+    },
+    "[python]": {
+      "editor.defaultFormatter": "ms-python.black-formatter",
+      "editor.formatOnSave": true,
+      "editor.codeActionsOnSave": {
+        "source.organizeImports": true
+      }
+    },
+    "[javascript]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[go]": {
+      "editor.formatOnSave": true,
+      "editor.codeActionsOnSave": {
+        "source.organizeImports": true
+      }
+    },
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": true,
+    "python.formatting.provider": "black",
+    "go.useLanguageServer": true,
+    "go.formatTool": "goimports"
+  },
+  "extensions": {
+    "recommendations": [
+      "ms-python.python",
+      "ms-python.black-formatter",
+      "ms-python.pylint",
+      "golang.go",
+      "dbaeumer.vscode-eslint",
+      "esbenp.prettier-vscode",
+      "rangav.vscode-thunder-client",
+      "humao.rest-client",
+      "ms-azuretools.vscode-docker",
+      "eamodio.gitlens",
+      "github.copilot"
+    ]
+  }
+}

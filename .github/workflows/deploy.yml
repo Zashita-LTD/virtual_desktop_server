@@ -1,0 +1,75 @@
+name: Deploy Virtual Desktop Server
+
+on:
+  workflow_dispatch:
+    inputs:
+      instance_name:
+        description: 'GCP Instance name'
+        required: true
+        default: 'instance-20260108-153942'
+      zone:
+        description: 'GCP Zone'
+        required: true
+        default: 'us-central1-c'
+
+env:
+  GCP_PROJECT_ID: viktor-integration
+  GCP_REGION: us-central1
+
+jobs:
+  deploy:
+    name: Deploy to GCP Instance
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.GCP_PROJECT_ID }}
+      
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+      
+      - name: Copy files to instance
+        run: |
+          gcloud compute scp --recurse \
+            --zone=${{ github.event.inputs.zone }} \
+            . ${{ github.event.inputs.instance_name }}:~/virtual_desktop_server/
+      
+      - name: Run installation script
+        run: |
+          gcloud compute ssh ${{ github.event.inputs.instance_name }} \
+            --zone=${{ github.event.inputs.zone }} \
+            --command="cd ~/virtual_desktop_server && sudo bash scripts/install/00-master-install.sh"
+      
+      - name: Get code-server password
+        run: |
+          PASSWORD=$(gcloud compute ssh ${{ github.event.inputs.instance_name }} \
+            --zone=${{ github.event.inputs.zone }} \
+            --command="cat ~/.config/code-server/config.yaml | grep password | awk '{print \$2}'")
+          echo "::add-mask::$PASSWORD"
+          echo "CODE_SERVER_PASSWORD=$PASSWORD" >> $GITHUB_ENV
+      
+      - name: Deployment complete
+        run: |
+          EXTERNAL_IP=$(gcloud compute instances describe ${{ github.event.inputs.instance_name }} \
+            --zone=${{ github.event.inputs.zone }} \
+            --format='get(networkInterfaces[0].accessConfigs[0].natIP)')
+          
+          echo "✅ Deployment completed successfully!"
+          echo ""
+          echo "Access code-server at: https://$EXTERNAL_IP:8443"
+          echo "Password: Check GitHub Actions secrets or instance config"
+
+# Note: This workflow requires the following secrets to be set:
+# - GCP_SA_KEY: Service account key JSON for GCP authentication
+#
+# To set up:
+# 1. Create a service account in GCP with Compute Admin role
+# 2. Generate a JSON key
+# 3. Add the key as a secret named GCP_SA_KEY in GitHub repository settings

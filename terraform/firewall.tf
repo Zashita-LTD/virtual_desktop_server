@@ -49,7 +49,7 @@ resource "google_compute_firewall" "allow_https" {
   description = "Allow HTTPS access from trusted IPs only"
 }
 
-# ICMP for ping
+# ICMP for ping - Limited to infrastructure IPs for diagnostics
 resource "google_compute_firewall" "allow_icmp" {
   name    = "${var.instance_name}-allow-icmp"
   network = "default"
@@ -58,8 +58,9 @@ resource "google_compute_firewall" "allow_icmp" {
     protocol = "icmp"
   }
   
-  source_ranges = ["0.0.0.0/0"]
+  # Whitelist: VPN servers + monitoring for diagnostics
+  source_ranges = var.ssh_allowed_ips
   target_tags   = ["code-server", "virtual-desktop"]
   
-  description = "Allow ICMP (ping)"
+  description = "Allow ICMP (ping) from trusted IPs for diagnostics"
 }

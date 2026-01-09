@@ -109,8 +109,11 @@ else
   echo "[$(date)] Warning: User $USERNAME does not exist. Skipping user-specific setup."
 fi
 
+# Get external IP dynamically
+EXTERNAL_IP=$(curl -s -H "Metadata-Flavor: Google" http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/access-configs/0/external-ip)
+
 echo "[$(date)] ========================================="
 echo "[$(date)] Virtual Desktop Server Setup Complete!"
 echo "[$(date)] ========================================="
-echo "[$(date)] Access code-server at: https://${EXTERNAL_IP}:8443"
+echo "[$(date)] Access code-server at: https://$EXTERNAL_IP:8443"
 echo "[$(date)] Get password with: cat /home/$USERNAME/.config/code-server/config.yaml"

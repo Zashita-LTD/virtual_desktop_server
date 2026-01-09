@@ -1,4 +1,4 @@
-# SSH access
+# SSH access - RESTRICTED to trusted IPs only
 resource "google_compute_firewall" "allow_ssh" {
   name    = "${var.instance_name}-allow-ssh"
   network = "default"
@@ -8,13 +8,14 @@ resource "google_compute_firewall" "allow_ssh" {
     ports    = ["22"]
   }
   
-  source_ranges = ["0.0.0.0/0"]  # Recommended to restrict to your IP
+  # Whitelist: VPN servers from Terraform_VPS_VPN project + admin IPs
+  source_ranges = var.ssh_allowed_ips
   target_tags   = ["code-server", "virtual-desktop"]
   
-  description = "Allow SSH access"
+  description = "Allow SSH access from trusted IPs only"
 }
 
-# HTTPS for code-server
+# HTTPS for code-server - RESTRICTED to trusted IPs only
 resource "google_compute_firewall" "allow_code_server" {
   name    = "${var.instance_name}-allow-code-server"
   network = "default"
@@ -24,13 +25,14 @@ resource "google_compute_firewall" "allow_code_server" {
     ports    = ["8443"]
   }
   
-  source_ranges = ["0.0.0.0/0"]
+  # Whitelist: VPN servers from Terraform_VPS_VPN project + admin IPs
+  source_ranges = var.code_server_allowed_ips
   target_tags   = ["code-server", "virtual-desktop"]
   
-  description = "Allow code-server HTTPS access"
+  description = "Allow code-server HTTPS access from trusted IPs only"
 }
 
-# HTTPS (443) if using Nginx reverse proxy
+# HTTPS (443) if using Nginx reverse proxy - RESTRICTED to trusted IPs only
 resource "google_compute_firewall" "allow_https" {
   name    = "${var.instance_name}-allow-https"
   network = "default"
@@ -40,10 +42,11 @@ resource "google_compute_firewall" "allow_https" {
     ports    = ["443"]
   }
   
-  source_ranges = ["0.0.0.0/0"]
+  # Whitelist: VPN servers from Terraform_VPS_VPN project + admin IPs
+  source_ranges = var.https_allowed_ips
   target_tags   = ["https-server", "code-server"]
   
-  description = "Allow HTTPS access"
+  description = "Allow HTTPS access from trusted IPs only"
 }
 
 # ICMP for ping

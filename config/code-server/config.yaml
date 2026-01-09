@@ -1,17 +1,29 @@
-# Example code-server configuration
-# Copy this to ~/.config/code-server/config.yaml and customize
+# code-server configuration
+# =========================
+# SECURITY: Set a strong password before deployment!
+# Generate: openssl rand -base64 24
+#
+# Copy this file to ~/.config/code-server/config.yaml
 
 bind-addr: 0.0.0.0:8443
 auth: password
-password: YOUR_PASSWORD_HERE
+
+# SECURITY WARNING: Change this password immediately!
+# Minimum requirements:
+# - At least 24 characters
+# - Mix of uppercase, lowercase, numbers, symbols
+# Generate with: openssl rand -base64 24
+password: CHANGE_ME_GENERATE_WITH_openssl_rand_-base64_24
+
 cert: true
 
-# Optional: Use Let's Encrypt certificates
+# Recommended: Use Let's Encrypt certificates for production
 # cert: /etc/letsencrypt/live/yourdomain.com/fullchain.pem
 # cert-key: /etc/letsencrypt/live/yourdomain.com/privkey.pem
 
-# Optional: Disable telemetry
-# disable-telemetry: true
+# Security hardening options
+disable-telemetry: true
+disable-update-check: false
 
 # Optional: Custom extensions directory
 # extensions-dir: ~/.local/share/code-server/extensions

@@ -1,0 +1,17 @@
+# Systemd timer for automated backups
+# Location: /etc/systemd/system/backup-gcs.timer
+
+[Unit]
+Description=Daily backup to Google Cloud Storage
+Documentation=https://github.com/Zashita-LTD/virtual_desktop_server
+
+[Timer]
+# Run daily at 3:00 AM
+OnCalendar=*-*-* 03:00:00
+# Randomize start time by up to 30 minutes to avoid thundering herd
+RandomizedDelaySec=1800
+# Run immediately if we missed the last trigger
+Persistent=true
+
+[Install]
+WantedBy=timers.target

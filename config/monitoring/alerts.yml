@@ -1,0 +1,109 @@
+# Prometheus Alert Rules for Virtual Desktop Server
+# Location: /etc/prometheus/rules/alerts.yml
+
+groups:
+  - name: system_alerts
+    rules:
+      # High CPU Usage
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage detected"
+          description: "CPU usage is above 80% for more than 5 minutes (current: {{ $value }}%)"
+
+      # High Memory Usage
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage detected"
+          description: "Memory usage is above 85% (current: {{ $value }}%)"
+
+      # Disk Space Low
+      - alert: DiskSpaceLow
+        expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100 < 15
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Low disk space on root partition"
+          description: "Disk space is below 15% (current: {{ $value }}%)"
+
+      # Disk Space Low on /data
+      - alert: DataDiskSpaceLow
+        expr: (node_filesystem_avail_bytes{mountpoint="/data"} / node_filesystem_size_bytes{mountpoint="/data"}) * 100 < 20
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low disk space on /data partition"
+          description: "Data disk space is below 20% (current: {{ $value }}%)"
+
+  - name: service_alerts
+    rules:
+      # code-server Down
+      - alert: CodeServerDown
+        expr: up{job="code-server"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "code-server is down"
+          description: "code-server service is not responding"
+
+      # Docker Down
+      - alert: DockerDown
+        expr: up{job="docker"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Docker daemon is down"
+          description: "Docker service is not responding"
+
+      # PostgreSQL Down
+      - alert: PostgreSQLDown
+        expr: up{job="postgres"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "PostgreSQL is down"
+          description: "PostgreSQL database is not responding"
+
+      # Redis Down
+      - alert: RedisDown
+        expr: up{job="redis"} == 0
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Redis is down"
+          description: "Redis cache is not responding"
+
+  - name: security_alerts
+    rules:
+      # Too Many Failed SSH Logins
+      - alert: TooManyFailedSSHLogins
+        expr: increase(node_systemd_unit_state{name="fail2ban.service",state="active"}[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Multiple failed SSH login attempts"
+          description: "More than 10 failed SSH login attempts in the last 5 minutes"
+
+      # Instance Restarted
+      - alert: InstanceRestarted
+        expr: node_boot_time_seconds > (time() - 300)
+        for: 1m
+        labels:
+          severity: info
+        annotations:
+          summary: "Instance was restarted"
+          description: "The server was restarted in the last 5 minutes"

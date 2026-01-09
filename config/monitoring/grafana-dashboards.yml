@@ -1,0 +1,16 @@
+# Grafana Dashboard provisioning
+# Location: /etc/grafana/provisioning/dashboards/dashboards.yml
+
+apiVersion: 1
+
+providers:
+  - name: 'Virtual Desktop Server'
+    orgId: 1
+    folder: 'Virtual Desktop'
+    folderUid: 'virtual-desktop'
+    type: file
+    disableDeletion: false
+    editable: true
+    updateIntervalSeconds: 30
+    options:
+      path: /var/lib/grafana/dashboards

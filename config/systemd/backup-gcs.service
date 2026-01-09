@@ -1,0 +1,26 @@
+# Systemd service for backup execution
+# Location: /etc/systemd/system/backup-gcs.service
+
+[Unit]
+Description=Backup to Google Cloud Storage
+Documentation=https://github.com/Zashita-LTD/virtual_desktop_server
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+Environment="GCS_BACKUP_BUCKET=gs://virtual-desktop-backups"
+Environment="BACKUP_RETENTION_DAYS=30"
+Environment="USERNAME=vik9541"
+ExecStart=/opt/virtual_desktop_server/scripts/management/backup-gcs.sh
+StandardOutput=journal
+StandardError=journal
+
+# Security hardening
+NoNewPrivileges=false
+ProtectSystem=false
+ProtectHome=false
+
+[Install]
+WantedBy=multi-user.target

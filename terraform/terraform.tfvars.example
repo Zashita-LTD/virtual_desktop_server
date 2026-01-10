@@ -26,6 +26,9 @@ persistent_disk_size_gb   = 1000  # 1TB for workspaces
 
 # SSH Access - Only from VPN servers and admin IPs
 ssh_allowed_ips = [
+  # Admin / Developer IPs (add your IP here)
+  # "YOUR_IP/32",          # Your home/office IP
+  "5.10.218.62/32",        # vik9541 home IP
   # DigitalOcean VPN Servers
   "146.190.147.78/32",   # USA VPN
   "165.232.153.33/32",   # API Server / WireGuard

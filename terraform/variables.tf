@@ -59,7 +59,7 @@ variable "enable_persistent_disk" {
 variable "persistent_disk_size_gb" {
   description = "Persistent disk size in GB"
   type        = number
-  default     = 1000
+  default     = 200  # Reduced due to GCP quota limit (500GB total SSD per region)
 }
 
 # ============================================================
